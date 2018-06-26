@@ -109,7 +109,7 @@ export default {
   margin-bottom: 5px;
 }
 .quote-text {
-  font-size: 20px;
+  font-size: 22px;
   color: #666;
 }
 </style>

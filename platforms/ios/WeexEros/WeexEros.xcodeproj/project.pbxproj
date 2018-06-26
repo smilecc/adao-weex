@@ -67,11 +67,11 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		725C1E7920D158CE00D25B36 /* Images */ = {
+		72E70A5220E1DBBE00F1DC7D /* images */ = {
 			isa = PBXGroup;
 			children = (
 			);
-			path = Images;
+			path = images;
 			sourceTree = "<group>";
 		};
 		9737F9DF1F384AFD00000800 = {
@@ -95,7 +95,7 @@
 		9737F9EA1F384AFD00000800 /* WeexEros */ = {
 			isa = PBXGroup;
 			children = (
-				725C1E7920D158CE00D25B36 /* Images */,
+				72E70A5220E1DBBE00F1DC7D /* images */,
 				97155AC51F444E4200615307 /* WeexEros.entitlements */,
 				9737F9EE1F384AFD00000800 /* AppDelegate.h */,
 				9737F9EF1F384AFD00000800 /* AppDelegate.m */,
@@ -487,7 +487,7 @@
 					"-weak_framework",
 					"\"UserNotifications\"",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cc.smilec.adao.develop;
+				PRODUCT_BUNDLE_IDENTIFIER = cc.smilec.adao;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -578,7 +578,7 @@
 					"-weak_framework",
 					"\"UserNotifications\"",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cc.smilec.adao.develop;
+				PRODUCT_BUNDLE_IDENTIFIER = cc.smilec.adao;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

@@ -3,7 +3,7 @@ export default {
   sites: {
     'adnmb': {
       name: 'adnmb',
-      domain: '',
+      domain: 'https://adnmb.adao.smilec.cc',
       cdn: '',
       defaultForums: [{
         id: 4,
@@ -24,7 +24,7 @@ export default {
     },
     'tnmb': {
       name: 'tnmb',
-      domain: 'https://tnmb.org',
+      domain: 'https://tnmb.org',// 'https://tnmb.adao.smilec.cc',
       cdn: 'https://tnmbstatic.fastmirror.org/Public/Upload/',
       defaultForums: [{
         id: 1,
@@ -32,6 +32,18 @@ export default {
       }, {
         id: 2,
         name: '技术'
+      }, {
+        id: 6,
+        name: '游戏'
+      }, {
+        id: 11,
+        name: '小说'
+      }, {
+        id: 13,
+        name: '数码音乐'
+      }, {
+        id: 22,
+        name: '喵版'
       }]
     }
   }

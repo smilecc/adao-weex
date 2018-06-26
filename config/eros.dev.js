@@ -8,6 +8,7 @@ module.exports = {
         // mediator
         'js/mediator/index.vue',
         // home
+        'js/pages/forum/timeline.vue',
         'js/pages/forum/index.vue',
         'js/pages/forum/list.vue',
         'js/pages/forum/thread.vue',
@@ -17,7 +18,9 @@ module.exports = {
         'js/pages/personal/index.vue',
         'js/pages/personal/setting.vue',
         'js/pages/personal/cookie.vue',
-        'js/pages/personal/about.vue'
+        'js/pages/personal/about.vue',
+        'js/pages/personal/about/opensource.vue',
+        'js/pages/personal/about/thank.vue',
     ],
     'alias': {
         'Components': 'js/components',
@@ -28,8 +31,8 @@ module.exports = {
         'Utils': 'js/utils'
     },
     'diff': {
-        'pwd': '/Users/yangmingzhe/Work/opensource/eros-diff-folder',
-        'proxy': 'https://app.weex-eros.com/source'
+        'pwd': '/Users/smilec/code/nodejs/adao/build-pack',
+        'proxy': 'http://123.206.199.206:27011/static/'
     },
     'server': {
         'path': './',

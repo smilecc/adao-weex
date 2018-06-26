@@ -24,7 +24,7 @@ const widget = new Widget({
          */
         apis,
         // 接口超时时间
-        timeout: 8000,
+        timeout: 10000,
 
         /**
          * 请求发送统一拦截器 （可选）

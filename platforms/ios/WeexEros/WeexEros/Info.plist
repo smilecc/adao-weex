@@ -24,15 +24,15 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.benmu.WeexEros</string>
+			<string>cc.smilec.adao</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>weexeros</string>
+				<string>adao</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -42,16 +42,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>需要访问您的相机</string>
-	<key>NSContactsUsageDescription</key>
-	<string>需要访问您的通讯录</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>需要访问您的位置信息</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>需要访问您的相册</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>

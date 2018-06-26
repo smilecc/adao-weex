@@ -15,7 +15,7 @@ module.exports = {
     },
     'url': {
         'image': 'https://lev-inf.benmu-health.com/test/xxx',
-        'bundleUpdate': 'http://localhosts:3001/app/check'
+        'bundleUpdate': 'http://123.206.199.206:27011/app/check'
     },
     'zipFolder': {
         'iOS': '/ios/WeexEros/WeexEros',
@@ -28,17 +28,17 @@ module.exports = {
         'appSecret': ''
     },
     'tabBar': {
-        'color': '#777777',
-        'selectedColor': '#00b4cb',
+        'color': '#7f7f7f',
+        'selectedColor': '#111',
         'backgroundColor': '#fff',
         'borderColor': '#f0f0f0',
         'list': [{
-                'pagePath': '/pages/forum/index.js',
-                'text': '首页',
-                'icon': 'bmlocal://assets/tabbar/forum@2x.png',
-                'selectedIcon': 'bmlocal://assets/tabbar/forum-active@2x.png',
+                'pagePath': '/pages/forum/timeline.js',
+                'text': '时间线',
+                'icon': 'bmlocal://assets/tabbar/timeline@2x.png',
+                'selectedIcon': 'bmlocal://assets/tabbar/timeline-active@2x.png',
                 'navShow': 'false',
-                'navTitle': "首页"
+                'navTitle': "时间线"
             },
             {
                 'pagePath': '/pages/forum/list.js',

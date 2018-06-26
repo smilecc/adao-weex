@@ -2,6 +2,7 @@ const Site = Object.create(null)
 
 Site.install = (Vue, options) => {
   var _site = null
+  var _config = null
   Vue.prototype.$site = {
     get currentSite () {
       if (_site === null) {
@@ -13,6 +14,10 @@ Site.install = (Vue, options) => {
         }
       }
       return _site
+    },
+    set currentSite (siteName) {
+      Vue.prototype.$storage.setSync('currentSite', siteName)
+      _site = options.sites[siteName]
     },
     get baseUrl () {
       return this.currentSite.domain
@@ -75,6 +80,25 @@ Site.install = (Vue, options) => {
       let cookies = this.cookies
       cookies.push(cookie)
       this.cookies = cookies
+    },
+    get config () {
+      if (_config) {
+        return _config
+      } else {
+        _config = Vue.prototype.$storage.getSync('config')
+        if (!_config) {
+          // 没有配置 使用默认配置
+          this.config = {
+            displayImage: true,
+            displayReply: false
+          }
+        }
+        return _config
+      }
+    },
+    set config (value) {
+      _config = value
+      Vue.prototype.$storage.setSync('config', _config)
     }
   }
 }

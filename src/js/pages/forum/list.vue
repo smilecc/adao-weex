@@ -1,5 +1,5 @@
 <template>
-  <scroller class="page">
+  <scroller class="page" :class="[ borderTop ? 'page-border-top' : '' ]">
     <div v-for="(group, gIndex) in groups" :key="gIndex" v-if="group.forums.length != 0">
       <div class="group-title">
         <text class="group-title-text">{{ group.title }}</text>
@@ -19,6 +19,16 @@ import { WxcGridSelect } from 'weex-ui'
 export default {
   components: {
     WxcGridSelect
+  },
+  props: {
+    type: {
+      type: String,
+      default: 'list'
+    },
+    borderTop: {
+      type: Boolean,
+      default: true
+    }
   },
   data () {
     return {
@@ -47,14 +57,24 @@ export default {
     onSelect ({selectIndex, checked, checkedList}) {
       let forum = checkedList[0]
       forum.checked = false
-      this.$router.open({
-        name: 'forum.index',
-        type: 'PUSH',
-        params: {
-          forumId: forum.id,
-          forumName: forum.title
-        }
-      })
+      if (this.type === 'list') {
+        this.$router.open({
+          name: 'forum.index',
+          type: 'PUSH',
+          params: {
+            forumId: forum.id,
+            forumName: forum.title
+          }
+        })
+      } else if (this.type === 'post') {
+        this.$router.open({
+          name: 'forum.reply',
+          type: 'PUSH',
+          params: {
+            forumId: forum.id
+          }
+        })
+      }
     }
   }
 }
@@ -64,6 +84,8 @@ export default {
 .page {
   padding: 0 20px;
   background-color: #fff;
+}
+.page-border-top {
   border-top-color: #dfdfdf;
   border-top-style: solid;
   border-top-width: 1px;

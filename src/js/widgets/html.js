@@ -3,13 +3,22 @@ const Html = Object.create(null)
 
 Html.install = (Vue, options) => {
     Vue.prototype.$html = {
-        parse (htmlContent) {
+        parse (_option) {
+            let option = {}
+            let htmlContent = ''
+            if (typeof _option === 'string') {
+                htmlContent = _option
+            } else {
+                htmlContent = _option.content
+                option = _option
+            }
             return new Promise((resolve, reject) => {
                 let richList = [{
                     list: [],
                     text: ''
                 }]
                 let contentText = ''
+                let currentLength = 0
                 let $push = (config) => {
                     if ('value' in config && config.value) {
                         // 替换换行符
@@ -23,6 +32,8 @@ Html.install = (Vue, options) => {
                         config.value = config.value.replace(/&gt;/g, '>')
                         contentText += config.value
                         richList[richList.length - 1].text += config.value
+                        // 统计当前长度
+                        currentLength += config.value.length
                     }
                     richList[richList.length - 1].list.push(config)
                 }
@@ -108,6 +119,37 @@ Html.install = (Vue, options) => {
                                     style: result.style,
                                     value: result.text
                                 })
+                            }
+                        }
+                        // 限制长度选项是否开启
+                        if (option['limit']) {
+                            if (option['limit']['line']) {
+                                // 超出限制行数
+                                if (richList.length > option['limit']['line']) {
+                                    $push({
+                                        type: 'text',
+                                        style: {},
+                                        value: '...'
+                                    })
+                                    break
+                                }
+                            }
+                            // 根据选项限制长度
+                            if (option['limit']['length']) {
+                                if (currentLength >= option['limit']['length']) {
+                                    let overLength = currentLength - option['limit']['length']
+                                    let lastVal = richList[richList.length - 1].value
+                                    if (lastVal) {
+                                        lastVal = lastVal.substr(0, lastVal.length - overLength)
+                                        richList[richList.length - 1].value = lastVal
+                                    }
+                                    $push({
+                                        type: 'text',
+                                        style: {},
+                                        value: '...'
+                                    })
+                                    break
+                                }
                             }
                         }
                     }

@@ -5,8 +5,11 @@
 //  dev.json 的 exports 需要打包的js地址，填入src的需要被打包成js bundle的地址   从src开始
 
 export default {
+  'forum.timeline': {
+    url: '/pages/forum/timeline.js'
+  },
   'forum.index': {
-    title: '首页',
+    title: '版块',
     url: '/pages/forum/index.js'
   },
   'forum.list': {
@@ -18,7 +21,7 @@ export default {
     url: '/pages/forum/thread.js'
   },
   'forum.reply': {
-    title: '回复串',
+    title: '发布串',
     url: '/pages/forum/reply.js'
   },
   'forum.favorite': {
@@ -36,8 +39,17 @@ export default {
   'personal.setting': {
     title: '设置',
     url: '/pages/personal/setting.js'
-  },'personal.about': {
+  },
+  'personal.about': {
     title: '关于',
     url: '/pages/personal/about.js'
+  },
+  'personal.opensource': {
+    title: '开源组件',
+    url: '/pages/personal/about/opensource.js'
+  },
+  'personal.thank': {
+    title: '致谢',
+    url: '/pages/personal/about/thank.js'
   }
 }

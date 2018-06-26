@@ -5,7 +5,7 @@
       :value="initReply"
       :rows="rows"
       @input="onInput"
-      placeholder="请在此书写你的回复..."
+      placeholder="请在此书写你的内容..."
       class="textarea"
     >
     </textarea>
@@ -30,6 +30,7 @@ export default {
       initReply: '',
       replyContent: '',
       threadId: '',
+      forumId: '',
       uploadImage: []
     }
   },
@@ -38,7 +39,11 @@ export default {
       if (response.replyId) {
         this.setInitReply('>>No.' + response.replyId + '\n')
       }
-      this.threadId = response.threadId
+      if (response.forumId) {
+        this.forumId = response.forumId
+      } else {
+        this.threadId = response.threadId
+      }
     })
   },
   mounted () {
@@ -90,6 +95,14 @@ export default {
       this.$notice.loading.show('正在用力')
       let threadId = encodeURIComponent(this.threadId)
       let content = encodeURIComponent(this.replyContent)
+      let sendBody = ''
+      if (this.forumId) {
+        // 发布新串
+        sendBody = encodeURI(`fid=${this.forumId}&content=${this.replyContent}`)
+      } else {
+        // 回复串
+        sendBody = encodeURI(`resto=${this.threadId}&content=${this.replyContent}`)
+      }
       stream.fetch({
         method: 'POST',
         url: this.postUrl,
@@ -99,7 +112,7 @@ export default {
           'Cookie': currentCookie.cookie
         },
         type: 'text',
-        body: encodeURI(`resto=${this.threadId}&content=${this.replyContent}`)
+        body: sendBody
       }, response => {
         this.$notice.loading.hide()
         if (response.data.indexOf('回复成功') !== -1) {
@@ -110,10 +123,18 @@ export default {
       })
     },
     sendImage (currentCookie) {
+      let sendBody = {}
+      if (this.forumId) {
+        // 发布新串
+        sendBody['fid'] = this.forumId
+      } else {
+        // 回复串
+        sendBody['resto'] = this.threadId
+      }
       bmAxios.uploadImage({
         url: this.postUrl,
         params: {
-          resto: this.threadId,
+          ...sendBody,
           content: this.replyContent
         },
         header: {
@@ -122,7 +143,7 @@ export default {
         images: this.uploadImage
       }, (response) => {
         if (response.data instanceof Array && response.data.length > 0) {
-          if (response.data[0].indexOf('回复成功') !== -1) {
+          if (response.data[0].indexOf('p class="success"') !== -1) {
             this.onReplySuccess()
           } else {
             this.onReplyFail()
@@ -133,7 +154,11 @@ export default {
       })
     },
     onReplySuccess () {
-      this.$event.emit('replySuccess')
+      if (this.forumId) {
+        this.$event.emit('postSuccess')
+      } else {
+        this.$event.emit('replySuccess')
+      }
       this.$router.back()
     },
     onReplyFail () {
@@ -152,7 +177,11 @@ export default {
   },
   computed: {
     postUrl () {
-      return this.$site.currentSite.domain + '/Home/Forum/doReplyThread'
+      if (this.forumId) {
+        return this.$site.currentSite.domain + '/Home/Forum/doPostThread'
+      } else {
+        return this.$site.currentSite.domain + '/Home/Forum/doReplyThread'
+      }
     }
   }
 }

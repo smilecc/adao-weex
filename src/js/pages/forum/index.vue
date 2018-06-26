@@ -1,5 +1,6 @@
 <template>
   <div class="wrapper">
+    <div class="border-shadow"></div>
     <div class="forum" v-if="forums.assignId === 0">
       <scroller :show-scrollbar="false" scroll-direction="horizontal" class="forum-swich">
         <div
@@ -23,20 +24,24 @@
       :showRefresh="true"
       @refresh="onRefresh"
       @loadmore="onLoadMore"
-      :loadmoreoffset="1000"
+      :loadmoreoffset="2000"
       @scroll="renderList"
       :offset-accuracy="300"
       v-if="!initLoading"
     >
+      <cell style="height: 10px"></cell>
       <cell v-for="(item, index) in threads.list" :key="index" class="thread-item" >
         <div class="thread-card" @click="onThreadClick(item.id)">
           <div class="thread-info">
             <bmrichtext style="color: #888">
-              <bmspan :value="`No.${item.id}`"></bmspan>
-              <bmspan v-if="item.admin == 1" style="color: red" :value="` ${item.userid}`"></bmspan>
-              <bmspan v-else :value="` ${item.userid}`"></bmspan>
+              <!-- <bmspan :value="`No.${item.id}`"></bmspan> -->
+              <bmspan v-if="item.admin == 1" style="color: red" :value="`${item.userid}`"></bmspan>
+              <bmspan v-else :value="`${item.userid}`"></bmspan>
               <bmspan v-if="item.sage == 1" style="color: red" :value="` SAGE`"></bmspan>
             </bmrichtext>
+            <div class="thread-replycount">
+              <text class="thread-replycount-text">{{ item.replyCount }}</text>
+            </div>
             <div class="thread-time">
               <text class="thread-time-text">{{ item.now }}</text>
             </div>
@@ -44,7 +49,7 @@
           <w-html :list="item.contentList"></w-html>
           <!-- 图片 -->
           <image
-            v-if="item.img"
+            v-if="config.displayImage && item.img"
             class="thread-image"
             resize="contain"
             :src="$site.getImageUrl(item.img, item.ext)"
@@ -52,7 +57,7 @@
           >
           </image>
           <!-- 回复 -->
-          <div v-for="(reply, rIndex) in item.replys" :key="rIndex" class="reply-card">
+          <div v-if="config.displayReply" v-for="(reply, rIndex) in item.replys" :key="rIndex" class="reply-card">
             <div class="reply-info">
               <text class="reply-info-text">{{ reply.userid }}</text>
               <text class="reply-info-text">{{ reply.now.substr(13, 8) }}</text>            
@@ -64,34 +69,70 @@
         </div>
       </cell>
     </list>
+    <wxc-result
+      type="noGoods"
+      :custom-set="error.config"
+      :show="error.show && threads.list.length === 0"
+      @wxcResultButtonClicked="initLoadForum"
+      padding-top="232"
+    >
+    </wxc-result>
+    <div class="tip-refresh">
+      <wxc-part-loading :width="55" :height="55" :show="threads.isLoadMore"></wxc-part-loading>
+    </div>
   </div>
 </template>
 
 <script>
+import { WxcResult, WxcPartLoading } from 'weex-ui'
 import WHtml from '../components/w-html'
 const img = weex.requireModule('imagePicker')
 const dom = weex.requireModule('dom')
 export default {
   components: {
-    WHtml
+    WHtml,
+    WxcResult,
+    WxcPartLoading
   },
   data () {
     return {
       initLoading: false,
       maxScrollPosition: 0,
-      testa: false,
+      error: {
+        show: false,
+        config: {
+          noGoods: {
+            button: '刷新一下',
+            content: '抱歉，没有获取到数据呢',
+            desc: '刷新一下试试'
+          }
+        }
+      },
       forums: {
         selected: 0,
-        assignId: 0,
-        list: []
+        assignId: -1,
+        list: [],
+        isLoadMore: false
       },
       threads: {
         currentPage: 1,
         list: []
-      }
+      },
+      config: {}
     }
   },
   created () {
+    this.config = this.$site.config
+    this.$event.on('reloadConfig', config => {
+      this.config = config
+    })
+    this.$event.on('resetSite', siteName => {
+      this.$site.currentSite = siteName
+      this.forums.list = this.$site.favoriteForums
+      this.forums.selected = 0
+      this.threads.list = []
+      this.error.show = true
+    })
     // 初始化板块
     this.forums.list = this.$site.favoriteForums
     // 订阅重新加载事件
@@ -106,6 +147,25 @@ export default {
         this.$navigator.setNavigationInfo({
           title: response.forumName
         })
+        // 标题栏右侧操作
+        this.$navigator.setRightItem({
+          image: 'bmlocal://assets/edit@2x.png'
+        }, () => {
+          this.$router.open({
+            name: 'forum.reply',
+            type: 'PUSH',
+            params: {
+              forumId: response.forumId,
+              forumName: response.forumName
+            }
+          })
+        })
+        // 回帖成功重新加载
+        this.$event.on('postSuccess', () => {
+          this.initLoadForum()
+        })
+      } else {
+        this.forums.assignId = 0
       }
       this.initLoadForum()
     })
@@ -117,12 +177,14 @@ export default {
       this.threads.list = []
       this.threads.currentPage = 1
       this.$notice.loading.show('正在折越')
+      this.error.show = false
       this.readForum().then(() => {
         this.$notice.loading.hide()
         this.initLoading = false
       }).catch(error => {
         this.$notice.loading.hide()
         this.initLoading = false
+        this.error.show = true
       })
     },
     loadForum() {},
@@ -167,7 +229,15 @@ export default {
     },
     onLoadMore () {
       this.threads.currentPage++
-      this.readForum()
+      if (this.threads.isLoadMore) {
+        return
+      }
+      this.threads.isLoadMore = true
+      this.readForum().then(response => {
+        this.threads.isLoadMore = false
+      }).catch(error => {
+        this.threads.isLoadMore = false
+      })
     },
     onThreadClick (threadId) {
       this.$router.open({
@@ -223,6 +293,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.border-shadow {
+  box-shadow: 1px 0px 15px #ccc;
+  position: fixed;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background-color: #fff;
+}
 .wrapper {
   background-color: #f7f8fa;
 }
@@ -260,19 +339,24 @@ export default {
 }
 
 .thread-item {
-  padding-left: 30px;
-  padding-right: 30px;
-  padding-top: 25px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 15px;
   padding-bottom: 10px;
 }
 .thread-card {
   background-color: #fff;
   box-shadow: 1px 0px 15px #e3e3e3;
   border-radius: 8px;
-  padding: 30px;
+  padding: 24px;
 }
 .thread-info {
   margin-bottom: 10px;
+}
+.thread-replycount {
+  position: absolute;
+  right: 0px;
+  top: 0px;
 }
 .thread-image {
   width: 200px;
@@ -282,13 +366,17 @@ export default {
   border-radius: 5px;
   border-style: solid;
   border-width: 1px;
-  border-color: #dfdfdf;
+  border-color: #f2f2f2;
 }
 .thread-time {
   flex: 1;
 }
 .thread-time-text {
   font-size: 19px;
+  color: #666;
+}
+.thread-replycount-text {
+  font-size: 22px;
   color: #666;
 }
 
@@ -310,5 +398,10 @@ export default {
 .reply-content {
   flex: 1;
   padding-left: 15px;
+}
+.tip-refresh {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
 }
 </style>

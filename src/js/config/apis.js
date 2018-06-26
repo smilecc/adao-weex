@@ -1,6 +1,6 @@
 export default {
-    'COMMON.getInfo': '/test/info',
     'forum.read': '/Api/showf',
+    'forum.timeline': '/Api/timeline',
     'forum.list': '/Api/getForumList',
     'forum.thread': '/Api/thread',
     'forum.cookie': '/Api/getCookie',

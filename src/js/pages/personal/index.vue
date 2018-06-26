@@ -7,7 +7,7 @@
       desc="人是会思考的芦苇"
     >
       <slot name="value">
-        <text style="color: #999">v1.0.beta</text>
+        <text style="color: #999">v1.0.beta.1</text>
       </slot>
     </wxc-cell>
 

@@ -1,8 +1,9 @@
 <template>
   <div>
+    <div class="border-shadow"></div>
     <scroller
       @loadmore="onLoadMore"
-      :loadmoreoffset="1000"
+      :loadmoreoffset="1500"
     >
       <div ref="main" class="thread-main" v-if="thread.contentList.length > 0">
         <!-- 板块信息 -->
@@ -32,7 +33,7 @@
         <w-html :list="thread.contentList"></w-html>
         <!-- 图片 -->
         <image
-          v-if="thread.img"
+          v-if="config.displayImage && thread.img"
           class="thread-image"
           resize="contain"
           :src="$site.getImageUrl(thread.img, thread.ext)"
@@ -62,7 +63,7 @@
           </div>
           <w-html ref="reply" :list="reply.contentList" :replys="replys.list"></w-html>
           <image
-            v-if="reply.img"
+            v-if="config.displayImage && reply.img"
             class="thread-image"
             resize="contain"
             :src="$site.getImageUrl(reply.img, reply.ext)"
@@ -119,8 +120,15 @@ export default {
         isLoaded: false,
         loading: false,
         pullLoading: false
-      }
+      },
+      config: {}
     }
+  },
+  created () {
+    this.config = this.$site.config
+    this.$event.on('reloadConfig', config => {
+      this.config = config
+    })
   },
   mounted () {
     this.initNavBar()
@@ -166,9 +174,9 @@ export default {
           items: [{
             type: 0,
             message: '回复'
-          }, {
-            type: 0,
-            message: '收藏'
+          // }, {
+          //   type: 0,
+          //   message: '收藏'
           }, {
             type: 1,
             message: '取消'
@@ -228,6 +236,9 @@ export default {
     },
     onLoadMore () {
       this.currentPage++
+      if (this.replys.loading) {
+        return
+      }
       this.replys.loading = true
       this.loadData().then(response => {
         if (response.replys.length !== 19) {
@@ -305,6 +316,15 @@ export default {
 </script>
 
 <style>
+.border-shadow {
+  box-shadow: 1px 0px 15px #ccc;
+  position: fixed;
+  top: -20px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background-color: #fff;
+}
 .thread-main {
   border-top-color: #f0f0f0;
   border-top-style: solid;
@@ -345,9 +365,10 @@ export default {
   padding: 24px 35px;
   border-bottom-style: solid;
   border-bottom-width: 1px;
-  border-bottom-color: #dfdfdf;
+  border-bottom-color: #f2f2f2;
 }
 .reply-tag-po {
+  color: #333;
   font-size: 16px;
 }
 .reply-tag-admin {
