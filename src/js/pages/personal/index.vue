@@ -7,13 +7,19 @@
       desc="人是会思考的芦苇"
     >
       <slot name="value">
-        <text style="color: #999">v1.0.beta.1</text>
+        <text style="color: #999">v1.0.beta.2</text>
       </slot>
     </wxc-cell>
 
     <div style="margin-top: 20px;">
-      <wxc-cell title="饼干管理" :has-arrow="true" :has-vertical-indent="false" :cell-style="cellStyle" @wxcCellClicked="openPage('cookie')">
+      <wxc-cell title="饼干" :has-arrow="true" :has-vertical-indent="false" :cell-style="cellStyle" @wxcCellClicked="openPage('cookie')">
         <image class="cell-icon" slot="label" src="bmlocal://assets/cookie@2x.png"></image>
+      </wxc-cell>
+      <wxc-cell title="收藏" :has-arrow="true" :has-vertical-indent="false" :cell-style="cellStyle" @wxcCellClicked="openPage('favorite.folder', false)">
+        <image class="cell-icon" slot="label" src="bmlocal://assets/favorite@2x.png"></image>
+      </wxc-cell>
+      <wxc-cell title="草稿" :has-arrow="true" :has-vertical-indent="false" :cell-style="cellStyle" @wxcCellClicked="openPage('drafts')">
+        <image class="cell-icon" slot="label" src="bmlocal://assets/drafts@2x.png"></image>
       </wxc-cell>
       <wxc-cell v-if="false" title="收藏管理" :has-arrow="true" :has-vertical-indent="false" :cell-style="cellStyle"></wxc-cell>
       <wxc-cell title="设置" :has-arrow="true" :has-vertical-indent="false" :cell-style="cellStyle" @wxcCellClicked="openPage('setting')">
@@ -47,10 +53,11 @@ export default {
     }
   },
   methods: {
-    openPage (page) {
+    openPage (page, gesBack = true) {
       this.$router.open({
         name: 'personal.' + page,
-        type: 'PUSH'
+        type: 'PUSH',
+        gesBack
       })
     }
   }

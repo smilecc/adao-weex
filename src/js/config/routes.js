@@ -51,5 +51,17 @@ export default {
   'personal.thank': {
     title: '致谢',
     url: '/pages/personal/about/thank.js'
+  },
+  'personal.favorite.folder': {
+    title: '收藏夹',
+    url: '/pages/personal/favorite/folder.js'
+  },
+  'personal.favorite.list': {
+    title: '收藏夹',
+    url: '/pages/personal/favorite/list.js'
+  },
+  'personal.drafts': {
+    title: '草稿箱',
+    url: '/pages/personal/drafts.js'
   }
 }

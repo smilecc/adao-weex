@@ -144,6 +144,9 @@ export default {
         title: '操作饼干',
         message: '正在对[' + cookie.date + ']进行操作',
         items: [{
+          type: 0,
+          message: '复制'
+        }, {
           type: 2,
           message: '删除'
         }, {
@@ -153,6 +156,8 @@ export default {
       }, result => {
         if (result.result === 'success') {
           if (result.data.index === 0) {
+            this.copyString(cookie.cookie)
+          } else if (result.data.index === 1) {
             this.$notice.confirm({
               title: '确认',
               message: '是否确认要删除该饼干',
@@ -224,7 +229,6 @@ export default {
         })
       }
       this.$tools.scan().then((resData) => {
-        console.log(resData)
         if (resData.text) {
           this.appendCookie(resData.text)
           this.$notice.toast({ message: '添加🍪成功' })
@@ -234,6 +238,12 @@ export default {
 
       })
       $setStateBar()
+    },
+    // 复制字符串
+    copyString (content) {
+      this.$tools.copyString(content).then(response => {
+        this.$notice.toast({ message: '复制成功' })
+      })
     }
   }
 }

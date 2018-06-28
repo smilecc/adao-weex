@@ -23,15 +23,18 @@
       </div>
       <forum-list type="post" :border-top="false" class="pop-menu"></forum-list>
     </wxc-popup>
-    <scroller
+    <list
       ref="list"
       class="list"
       :showRefresh="true"
+      :show-scrollbar="false"
       @refresh="onRefresh"
       @loadmore="onLoadMore"
       :loadmoreoffset="2000"
+      @scroll="renderList"
+      :offset-accuracy="300"
     >
-      <div class="thread-item" v-for="(thread, tIndex) in thread.list" :key="tIndex">
+      <cell class="thread-item" v-for="(thread, tIndex) in thread.list" :key="tIndex">
         <div class="thread-card" @click="onThreadClick(thread.id, getForumName(thread.fid))">
           <!-- 串介绍 -->
           <div class="thread-info">
@@ -57,8 +60,8 @@
             </image>
           </div>
         </div>
-      </div>
-    </scroller>
+      </cell>
+    </list>
     <div class="tip-refresh">
       <wxc-part-loading :width="55" :height="55" :show="thread.loading"></wxc-part-loading>
     </div>
@@ -80,6 +83,7 @@ export default {
   },
   data () {
     return {
+      maxScrollPosition: 0,
       thread: {
         list: [],
         currentPage: 1,
@@ -119,11 +123,22 @@ export default {
     onRefresh () {
       this.thread.list = []
       this.thread.currentPage = 1
+      this.maxScrollPosition = 0
+      this.thread.loading = false
       this.loadData().then(response => {
         this.$refs["list"].refreshEnd()
       }).catch(error => {
         this.$refs["list"].refreshEnd()
       })
+    },
+    renderList (event) {
+      if (event.contentOffset.y < this.maxScrollPosition) {
+        this.maxScrollPosition = event.contentOffset.y
+        this.thread.list.push([{ type: 'text', value: 'temp' }])
+        this.$nextTick(() => {
+          this.thread.list.pop()
+        })
+      }
     },
     loadData () {
       return new Promise((resolve, reject) => {
@@ -252,7 +267,7 @@ export default {
   color: #666;
 }
 .thread-userid {
-  width: 120px;
+  width: 130px;
 }
 .thread-info-replycount {
   flex: 1;

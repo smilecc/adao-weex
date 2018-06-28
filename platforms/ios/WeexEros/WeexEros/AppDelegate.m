@@ -7,6 +7,8 @@
 //
 
 #import "AppDelegate.h"
+#import <WeexSDK/WeexSDK.h>
+#import "Component/CCTextareaTools.h"
 
 @interface AppDelegate ()
 
@@ -19,7 +21,7 @@
     BOOL result = [super application:application didFinishLaunchingWithOptions:launchOptions];
     
     //do something
-    
+    [WXSDKEngine registerComponent:@"textarea-tools" withClass:[CCTextareaTools class]];
     return result;
 }
 

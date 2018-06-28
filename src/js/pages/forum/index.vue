@@ -154,6 +154,7 @@ export default {
           this.$router.open({
             name: 'forum.reply',
             type: 'PUSH',
+            gesBack: false,
             params: {
               forumId: response.forumId,
               forumName: response.forumName

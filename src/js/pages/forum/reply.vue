@@ -1,28 +1,39 @@
 <template>
   <div>
     <textarea
+      ref="input"
       :autofocus="true"
       :value="initReply"
       :rows="rows"
-      @input="onInput"
       placeholder="请在此书写你的内容..."
+      @input="onInput"
       class="textarea"
     >
     </textarea>
-    <div style="margin: 20px">
-      <wxc-button v-if="uploadImage.length === 0" text="增加图片" size="small" type="blue" @wxcButtonClicked="pickImage"></wxc-button>
-      <image v-else class="image-preview" resize="cover" :src="uploadImage[0]" @click="pickImage"></image>
-    </div>
+    <textarea-tools class="btn-group">
+      <div class="tools-btn" @click="popFace">
+        <text class="tools-btn-text">(｀･ω･) 颜文字</text>
+      </div>
+      <image v-if="uploadImage.length !== 0" class="image-preview" resize="cover" :src="uploadImage[0]" @click="pickImage"></image>
+      <div class="tools-btn" @click="pickImage">
+        <text class="tools-btn-text">上传图片</text>
+      </div>
+    </textarea-tools>
+    <face-pop :show.sync="facePop.show" @select="onFaceSelect" @cancel="onFaceCancel">
+    </face-pop>
   </div>
 </template>
 
 <script>
 import { WxcButton } from 'weex-ui'
+import Face from '../components/Face'
 const stream = weex.requireModule('stream')
 const bmAxios = weex.requireModule('bmAxios')
+const actionSheet = weex.requireModule('actionSheet')
 export default {
   components: {
-    WxcButton
+    WxcButton,
+    'face-pop': Face
   },
   data () {
     return {
@@ -31,13 +42,33 @@ export default {
       replyContent: '',
       threadId: '',
       forumId: '',
-      uploadImage: []
+      forumName: '',
+      draftId: '',
+      uploadImage: [],
+      facePop: {
+        show: false,
+        selectPromise: {
+          promise: undefined,
+          reject: undefined,
+          resolve: undefined
+        }
+      }
     }
   },
   created () {
+    this.initNavbarLeft()
     this.$router.getParams().then(response => {
       if (response.replyId) {
         this.setInitReply('>>No.' + response.replyId + '\n')
+      }
+      if (response.content) {
+        this.setInitReply(response.content)
+      }
+      if (response.forumName) {
+        this.forumName = response.forumName
+      }
+      if (response.draftId) {
+        this.draftId = response.draftId
       }
       if (response.forumId) {
         this.forumId = response.forumId
@@ -159,6 +190,12 @@ export default {
       } else {
         this.$event.emit('replySuccess')
       }
+      if (this.draftId) {
+        this.$event.emit('deleteDrafts', {
+          id: this.draftId
+        })
+      }
+      this.$notice.toast({ message: '发表成功' })
       this.$router.back()
     },
     onReplyFail () {
@@ -173,6 +210,117 @@ export default {
           })
         }
       })
+    },
+    popFace () {
+      this.$refs['input'].getSelectionRange(({selectionStart, selectionEnd}) => {
+        this.$tools.resignKeyboard().then(() => {
+          let start = this.replyContent.substr(0, selectionStart)
+          let end = this.replyContent.substr(selectionStart, this.replyContent.length)
+          this.facePop.show = true
+
+          this.facePop.selectPromise.promise = new Promise((resolve, reject) => {
+            this.facePop.selectPromise.resolve = resolve
+            this.facePop.selectPromise.reject = reject
+          })
+          let $setFocus = (overLength) => {
+            let selectPos = selectionStart + overLength
+            this.$refs['input'].focus()
+            this.$refs['input'].setSelectionRange(selectPos, selectPos)
+          }
+          // 选择表情
+          this.facePop.selectPromise.promise.then(({ text: faceText }) => {
+            let text = start + faceText + end
+            this.$refs['input'].setText(text)
+            this.onInput({ value: text })
+            // 设置焦点
+            $setFocus(faceText.length)
+          }).catch(() => {
+            $setFocus(0)
+          })
+        })
+      })
+    },
+    onFaceSelect (face) {
+      if (this.facePop.selectPromise.resolve) {
+        this.facePop.selectPromise.resolve(face)
+      }
+    },
+    onFaceCancel () {
+      if (this.facePop.selectPromise.reject) {
+        this.facePop.selectPromise.reject()
+      }
+    },
+    initNavbarLeft () {
+      this.$navigator.setLeftItem({
+        text: '放弃',
+        textColor: 'red'
+      }, () => {
+        // 如果没有内容则返回
+        if (!this.replyContent) {
+          this.$router.back()
+          return
+        }
+        // 如果有内容则弹出选项
+        actionSheet.create({
+          title: '放弃回复',
+          message: '放弃后不可撤回',
+          items: [{
+            type: 0,
+            message: '存为草稿'
+          }, {
+            type: 2,
+            message: '放弃'
+          }, {
+            type: 1,
+            message: '取消'
+          }]
+        }, result => {
+          if (result.result === 'success') {
+            if (result.data.index === 0) {
+              // 存为草稿
+              if (this.draftId) {
+                this.$event.emit('saveDrafts', {
+                  id: this.draftId,
+                  content: this.replyContent
+                })
+              } else {
+                this.saveDraft()
+              }
+              this.$notice.toast({ message: '保存成功' })
+              this.$router.back()
+            } else if (result.data.index === 1) {
+              this.$router.back()
+            }
+          }
+        })
+      })
+    },
+    saveDraft () {
+      let draft = {
+        threadId: this.threadId,
+        forumId: this.forumId,
+        forumName: this.forumName,
+        siteName: this.$site.currentSite.name,
+        content: this.replyContent,
+        time: (new Date()).toLocaleString('zh-CN')
+      }
+      // 从存储中获取
+      let myDrafts = this.$storage.getSync('myDrafts')
+      // 初始化
+      if (!myDrafts) {
+        myDrafts = {
+          list: [],
+          maxId: 0
+        }
+      }
+      // 设置ID
+      draft.id = ++myDrafts.maxId
+      myDrafts.list = [
+        draft,
+        ...myDrafts.list
+      ]
+      // 存储
+      this.$storage.setSync('myDrafts', myDrafts)
     }
   },
   computed: {
@@ -192,10 +340,36 @@ export default {
   line-height: 40px;
   background-color: #fff;
   padding: 15px;
-  height: 400px;
+  padding-bottom: 50px;
+  /* height: 400px; */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 80px;
 }
 .image-preview {
-  width: 250px;
-  height: 250px;
+  width: 66px;
+  height: 66px;
+  border-radius: 3px;
+  margin-top: 7px;
+  margin-right: 10px;
+}
+.btn-group {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #FF6666;
+  height: 80px;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.tools-btn {
+  padding-top: 18px;
+  margin-right: 20px;
+}
+.tools-btn-text {
+  color: #fff;
 }
 </style>

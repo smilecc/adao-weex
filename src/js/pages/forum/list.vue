@@ -70,8 +70,10 @@ export default {
         this.$router.open({
           name: 'forum.reply',
           type: 'PUSH',
+          gesBack: false,
           params: {
-            forumId: forum.id
+            forumId: forum.id,
+            forumName: forum.title
           }
         })
       }

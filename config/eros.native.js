@@ -29,7 +29,7 @@ module.exports = {
     },
     'tabBar': {
         'color': '#7f7f7f',
-        'selectedColor': '#111',
+        'selectedColor': '#FF6666',
         'backgroundColor': '#fff',
         'borderColor': '#f0f0f0',
         'list': [{

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		725C1E7B20D15B4600D25B36 /* test.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 725C1E7A20D15B4600D25B36 /* test.jpg */; };
+		72E70A5920E34A6C00F1DC7D /* CCTextareaTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 72E70A5820E34A6C00F1DC7D /* CCTextareaTools.m */; };
 		9734840920C6A4E5006004D0 /* eros.native.json in Resources */ = {isa = PBXBuildFile; fileRef = 9734840620C6A4E4006004D0 /* eros.native.json */; };
 		9734840A20C6A4E5006004D0 /* bundle.zip in Resources */ = {isa = PBXBuildFile; fileRef = 9734840720C6A4E4006004D0 /* bundle.zip */; };
 		9734840B20C6A4E5006004D0 /* bundle.config in Resources */ = {isa = PBXBuildFile; fileRef = 9734840820C6A4E5006004D0 /* bundle.config */; };
@@ -23,6 +24,8 @@
 		5CEF84707EB054DDBAA36BA2 /* Pods-WeexEros.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexEros.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WeexEros/Pods-WeexEros.debug.xcconfig"; sourceTree = "<group>"; };
 		5EE25A79A3A97DFB7A3158EC /* libPods-WeexEros.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WeexEros.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		725C1E7A20D15B4600D25B36 /* test.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = test.jpg; path = Images/test.jpg; sourceTree = "<group>"; };
+		72E70A5720E34A6C00F1DC7D /* CCTextareaTools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CCTextareaTools.h; path = Component/CCTextareaTools.h; sourceTree = "<group>"; };
+		72E70A5820E34A6C00F1DC7D /* CCTextareaTools.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = CCTextareaTools.m; path = Component/CCTextareaTools.m; sourceTree = "<group>"; };
 		97155AC51F444E4200615307 /* WeexEros.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WeexEros.entitlements; sourceTree = "<group>"; };
 		9734840620C6A4E4006004D0 /* eros.native.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = eros.native.json; sourceTree = "<group>"; };
 		9734840720C6A4E4006004D0 /* bundle.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = bundle.zip; sourceTree = "<group>"; };
@@ -74,6 +77,15 @@
 			path = images;
 			sourceTree = "<group>";
 		};
+		72E70A5620E3499A00F1DC7D /* Component */ = {
+			isa = PBXGroup;
+			children = (
+				72E70A5720E34A6C00F1DC7D /* CCTextareaTools.h */,
+				72E70A5820E34A6C00F1DC7D /* CCTextareaTools.m */,
+			);
+			name = Component;
+			sourceTree = "<group>";
+		};
 		9737F9DF1F384AFD00000800 = {
 			isa = PBXGroup;
 			children = (
@@ -95,6 +107,7 @@
 		9737F9EA1F384AFD00000800 /* WeexEros */ = {
 			isa = PBXGroup;
 			children = (
+				72E70A5620E3499A00F1DC7D /* Component */,
 				72E70A5220E1DBBE00F1DC7D /* images */,
 				97155AC51F444E4200615307 /* WeexEros.entitlements */,
 				9737F9EE1F384AFD00000800 /* AppDelegate.h */,
@@ -272,6 +285,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				72E70A5920E34A6C00F1DC7D /* CCTextareaTools.m in Sources */,
 				9737F9F01F384AFD00000800 /* AppDelegate.m in Sources */,
 				9737F9ED1F384AFD00000800 /* main.m in Sources */,
 			);

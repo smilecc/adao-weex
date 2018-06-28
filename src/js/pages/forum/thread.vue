@@ -82,11 +82,18 @@
     <div class="tip-refresh">
       <wxc-part-loading :width="55" :height="55" :show="replys.loading"></wxc-part-loading>
     </div>
+    <favorite
+      :show.sync="favorite.show"
+      :thread-id="thread.id"
+      :thread-title="favoriteName"
+      :forum-name="thread.forumName"
+    ></favorite>
   </div>
 </template>
 
 <script>
 import WHtml from '../components/w-html'
+import Favorite from '../components/Favorite'
 import { WxcPartLoading } from 'weex-ui'
 const img = weex.requireModule('imagePicker')
 const actionSheet = weex.requireModule('actionSheet')
@@ -94,7 +101,8 @@ const dom = weex.requireModule('dom')
 export default {
   components: {
     WHtml,
-    WxcPartLoading
+    WxcPartLoading,
+    Favorite
   },
   data () {
     return {
@@ -112,6 +120,7 @@ export default {
         replyCount: 0,
         now: '',
         contentList: [],
+        contentText: '',
         imageList: []
       },
       replys: {
@@ -120,6 +129,9 @@ export default {
         isLoaded: false,
         loading: false,
         pullLoading: false
+      },
+      favorite: {
+        show: false
       },
       config: {}
     }
@@ -174,9 +186,9 @@ export default {
           items: [{
             type: 0,
             message: '回复'
-          // }, {
-          //   type: 0,
-          //   message: '收藏'
+          }, {
+            type: 0,
+            message: '收藏'
           }, {
             type: 1,
             message: '取消'
@@ -185,6 +197,8 @@ export default {
           if (result.result === 'success') {
             if (result.data.index === 0) {
               this.onReply()
+            } else if (result.data.index === 1) {
+              this.favorite.show = true
             }
           }
         })
@@ -204,6 +218,7 @@ export default {
           if (this.currentPage === 1) {
             this.$html.parse(response.content).then(({ list, text }) => {
               this.thread.contentList = list
+              this.thread.contentText = text
             })
             this.thread.userid = response.userid
             this.thread.now = response.now
@@ -305,11 +320,21 @@ export default {
       this.$router.open({
         name: 'forum.reply',
         type: 'PUSH',
+        gesBack: false,
         params: {
           threadId: this.thread.id,
           replyId
         }
       })
+    }
+  },
+  computed: {
+    favoriteName () {
+      if (this.thread.contentText.length > 10) {
+        return this.thread.contentText.substr(0, 10) + '...'
+      } else {
+        return this.thread.contentText
+      }
     }
   }
 }
