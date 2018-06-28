@@ -44,6 +44,9 @@ export default {
     }, this.createFolder)
     // 初始化数据
     this.favorite = this.loadData()
+    if (this.favorite.list.length === 0) {
+      this.appendFolder('默认收藏夹')
+    }
     // this.$notice.alert({ message: JSON.stringify(this.favorite) })
   },
   methods: {

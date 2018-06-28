@@ -62,8 +62,25 @@ export default {
     let favorite = this.$storage.getSync('myFavorite')
     if (favorite) {
       this.favorite = favorite
+      if (favorite.list.length == 0) {
+        this.empty = true
+      }
     } else {
       this.empty = true
+    }
+    // 为空的话初始化一个默认收藏夹
+    if (this.empty) {
+      this.favorite = {
+        list: [{
+          id: 1,
+          value: 1,
+          title: '默认收藏夹',
+          time: (new Date()).toLocaleString('zh-CN'),
+          list: []
+        }],
+        maxId: 1
+      }
+      this.$storage.setSync('myFavorite', this.favorite)
     }
   },
   methods: {

@@ -86,6 +86,7 @@ export default {
       maxScrollPosition: 0,
       thread: {
         list: [],
+        loaded: {},
         currentPage: 1,
         loading: false,
         showPostPop: false
@@ -122,6 +123,7 @@ export default {
     },
     onRefresh () {
       this.thread.list = []
+      this.thread.loaded = {}
       this.thread.currentPage = 1
       this.maxScrollPosition = 0
       this.thread.loading = false
@@ -158,7 +160,11 @@ export default {
               }
             })
             this.$set(item, 'contentList', threadHtml.list)
-            this.thread.list.push(item)
+            // 去除重复
+            if (!this.thread.loaded[item.id]) {
+              this.thread.loaded[item.id] = true
+              this.thread.list.push(item)
+            }
           }
           resolve(response)
         }).catch(error => {

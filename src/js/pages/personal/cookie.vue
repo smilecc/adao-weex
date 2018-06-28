@@ -2,7 +2,7 @@
   <scroller class="page">
     <div v-if="cookies.length > 0">
       <div style="margin: 20px; margin-bottom: 10px">
-        <text style="font-size: 25px; color: #666">点击饼干名称即可编辑</text>
+        <text style="font-size: 25px; color: #666">点击饼干即可操作</text>
       </div>
       <wxc-cell
         v-for="(cookie, cIndex) in cookies"

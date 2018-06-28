@@ -24,7 +24,7 @@ export default {
     },
     'tnmb': {
       name: 'tnmb',
-      domain: 'https://tnmb.org',// 'https://tnmb.adao.smilec.cc',
+      domain: 'https://tnmb.adao.smilec.cc',
       cdn: 'https://tnmbstatic.fastmirror.org/Public/Upload/',
       defaultForums: [{
         id: 1,
