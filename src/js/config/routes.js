@@ -63,5 +63,9 @@ export default {
   'personal.drafts': {
     title: '草稿箱',
     url: '/pages/personal/drafts.js'
+  },
+  'personal.history': {
+    title: '历史',
+    url: '/pages/personal/history.js'
   }
 }

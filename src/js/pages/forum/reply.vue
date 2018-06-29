@@ -147,9 +147,9 @@ export default {
       }, response => {
         this.$notice.loading.hide()
         if (response.data.indexOf('回复成功') !== -1) {
-          this.onReplySuccess()
+          this.onReplySuccess(response.data)
         } else {
-          this.onReplyFail()
+          this.onReplyFail(response.data)
         }
       })
     },
@@ -175,20 +175,24 @@ export default {
       }, (response) => {
         if (response.data instanceof Array && response.data.length > 0) {
           if (response.data[0].indexOf('p class="success"') !== -1) {
-            this.onReplySuccess()
+            this.onReplySuccess(response.data[0])
           } else {
-            this.onReplyFail()
+            this.onReplyFail(response.data[0])
           }
         } else {
           this.onReplyFail()
         }
       })
     },
-    onReplySuccess () {
+    onReplySuccess (response) {
       if (this.forumId) {
-        this.$event.emit('postSuccess')
+        this.$event.emit('postSuccess', {
+          content: this.replyContent
+        })
       } else {
-        this.$event.emit('replySuccess')
+        this.$event.emit('replySuccess', {
+          content: this.replyContent
+        })
       }
       if (this.draftId) {
         this.$event.emit('deleteDrafts', {
@@ -198,7 +202,7 @@ export default {
       this.$notice.toast({ message: '发表成功' })
       this.$router.back()
     },
-    onReplyFail () {
+    onReplyFail (response) {
       this.$notice.confirm({
         title: '回复失败',
         message: '可能是饼干失效或其他错误',

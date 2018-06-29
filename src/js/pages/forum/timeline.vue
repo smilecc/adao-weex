@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="banner">
+    <div class="banner" v-if="!result.show">
       <div class="timeline-title">
         <text class="timeline-title-text">时间线</text>
       </div>
@@ -65,11 +65,18 @@
     <div class="tip-refresh">
       <wxc-part-loading :width="55" :height="55" :show="thread.loading"></wxc-part-loading>
     </div>
+    <wxc-result
+      :type="result.type"
+      :show="result.show"
+      @wxcResultButtonClicked="onResultClick"
+      padding-top="232"
+    >
+    </wxc-result>
   </div>
 </template>
 
 <script>
-import { WxcIcon, WxcPartLoading, WxcPopup } from 'weex-ui'
+import { WxcIcon, WxcPartLoading, WxcPopup, WxcResult } from 'weex-ui'
 import WHtml from '../components/w-html'
 const img = weex.requireModule('imagePicker')
 import ForumList from './list'
@@ -79,11 +86,16 @@ export default {
     WHtml,
     WxcPartLoading,
     WxcPopup,
-    ForumList
+    ForumList,
+    WxcResult
   },
   data () {
     return {
       maxScrollPosition: 0,
+      result: {
+        show: false,
+        type: 'noNetwork'
+      },
       thread: {
         list: [],
         loaded: {},
@@ -105,6 +117,14 @@ export default {
   },
   methods: {
     initLoad () {
+      let networkStatus = this.$tools.networkStatus()
+      if (networkStatus === 'NOT_REACHABLE') {
+        this.result.type = 'noNetwork'
+        this.result.show = true
+        return
+      } else {
+        this.result.show = false
+      }
       this.$site.forums.then(forums => {
         this.$notice.loading.show('正在折越')
         for (let forumGroup of forums) {
@@ -183,10 +203,10 @@ export default {
       })
     },
     onLoadMore () {
-      this.thread.currentPage++
       if (this.thread.loading) {
         return
       }
+      this.thread.currentPage++
       this.thread.loading = true
       this.loadData().then(response => {
         this.thread.loading = false
@@ -208,6 +228,11 @@ export default {
         urls: [imgUrl],
         current: imgUrl
       })
+    },
+    onResultClick () {
+      if (this.result.type === 'noNetwork') {
+        this.$router.refresh()
+      }
     }
   }
 }

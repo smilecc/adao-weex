@@ -7,7 +7,7 @@
       desc="人是会思考的芦苇"
     >
       <slot name="value">
-        <text style="color: #999">v1.0.beta.2</text>
+        <text style="color: #999">v1.0.beta.8</text>
       </slot>
     </wxc-cell>
 
@@ -17,6 +17,9 @@
       </wxc-cell>
       <wxc-cell title="收藏" :has-arrow="true" :has-vertical-indent="false" :cell-style="cellStyle" @wxcCellClicked="openPage('favorite.folder', false)">
         <image class="cell-icon" slot="label" src="bmlocal://assets/favorite@2x.png"></image>
+      </wxc-cell>
+      <wxc-cell title="历史" :has-arrow="true" :has-vertical-indent="false" :cell-style="cellStyle" @wxcCellClicked="openPage('history')">
+        <image class="cell-icon" slot="label" src="bmlocal://assets/history@2x.png"></image>
       </wxc-cell>
       <wxc-cell title="草稿" :has-arrow="true" :has-vertical-indent="false" :cell-style="cellStyle" @wxcCellClicked="openPage('drafts')">
         <image class="cell-icon" slot="label" src="bmlocal://assets/drafts@2x.png"></image>
@@ -57,6 +60,15 @@ export default {
       this.$router.open({
         name: 'personal.' + page,
         type: 'PUSH',
+        gesBack
+      })
+    },
+    openPageWithoutNavbar (page, gesBack = true) {
+      this.$router.open({
+        name: 'personal.' + page,
+        type: 'PUSH',
+        navShow: false,
+        navTitle: '',
         gesBack
       })
     }

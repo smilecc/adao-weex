@@ -1,5 +1,5 @@
 <template>
-  <div @appear="repaint">
+  <div>
     <div v-for="(line, lIndex) in list" :key="lIndex" style="margin-top: 8px">
       <bmrichtext ref="richText" style="line-height: 37px">
         <div v-for="(element, eIndex) in line.list" :key="eIndex">
@@ -91,12 +91,6 @@ export default {
         reply.content = currentReply.contentText
         this.quote[line.text] = reply
         return reply
-      }
-    },
-    repaint () {
-      for (let rt of this.$refs['richText']) {
-        rt.updateRichText()
-        console.log('repaint')
       }
     }
   }

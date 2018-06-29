@@ -229,10 +229,10 @@ export default {
       this.initLoadForum()
     },
     onLoadMore () {
-      this.threads.currentPage++
       if (this.threads.isLoadMore) {
         return
       }
+      this.threads.currentPage++
       this.threads.isLoadMore = true
       this.readForum().then(response => {
         this.threads.isLoadMore = false

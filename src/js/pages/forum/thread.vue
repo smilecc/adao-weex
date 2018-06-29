@@ -41,7 +41,11 @@
         >
         </image>
       </div>
+      
       <div class="reply" v-if="replys.list.length > 0">
+        <div class="finish" v-if="startPage != 1" @click="loadPreviousPage">
+          <text class="finish-text">当前第{{ startPage }}页 点此加载上一页</text>
+        </div>
         <text class="reply-title">回复</text>
         <div v-for="(reply, rIndex) in replys.list" :key="rIndex" @click="onOperationReply(reply)" class="reply-card">
           <div class="reply-user">
@@ -61,7 +65,7 @@
               <bmspan :value="` ${reply.now}`"></bmspan>
             </bmrichtext>
           </div>
-          <w-html ref="reply" :list="reply.contentList" :replys="replys.list"></w-html>
+          <w-html ref="reply" :list="reply.contentList" :replys="replyList"></w-html>
           <image
             v-if="config.displayImage && reply.img"
             class="thread-image"
@@ -73,7 +77,7 @@
         </div>
       </div>
       <div class="finish" v-if="replys.isLoaded">
-        <text class="finish-text">- 我也是有底线的 -</text>
+        <text class="finish-text">- 我也是有底线的 上拉可刷新 -</text>
       </div>
       <loading class="loading" @loading="onLoadMore" :display="replys.pullLoading ? 'show' : 'hide'">
         <loading-indicator class="indicator"></loading-indicator>
@@ -98,6 +102,7 @@ import { WxcPartLoading } from 'weex-ui'
 const img = weex.requireModule('imagePicker')
 const actionSheet = weex.requireModule('actionSheet')
 const dom = weex.requireModule('dom')
+const modal = weex.requireModule('modal')
 export default {
   components: {
     WHtml,
@@ -107,6 +112,7 @@ export default {
   data () {
     return {
       currentPage: 1,
+      startPage: 1,
       thread: {
         id: '',
         userid: '',
@@ -145,8 +151,16 @@ export default {
   mounted () {
     this.initNavBar()
     // 加载更多
-    this.$event.on('replySuccess', () => {
+    this.$event.on('replySuccess', ({ content }) => {
       this.$notice.toast({ message: '回复成功' })
+      // 计入回复记录
+      this.$site.recordHistory({
+        type: 'reply',
+        threadId: this.thread.id,
+        threadContent: this.thread.contentText,
+        forumName: this.thread.forumName,
+        postContent: content
+      })
       this.currentPage--
       this.onLoadMore()
     })
@@ -178,7 +192,7 @@ export default {
     initNavBar () {
       // 标题栏右侧操作
       this.$navigator.setRightItem({
-        image: 'bmlocal://assets/edit@2x.png'
+        image: 'bmlocal://assets/ellipsis@2x.png'
       }, () => {
         actionSheet.create({
           title: '串的操作',
@@ -190,6 +204,9 @@ export default {
             type: 0,
             message: '收藏'
           }, {
+            type: 0,
+            message: '跳页'
+          }, {
             type: 1,
             message: '取消'
           }]
@@ -199,19 +216,54 @@ export default {
               this.onReply()
             } else if (result.data.index === 1) {
               this.favorite.show = true
+            } else if (result.data.index === 2) {
+              // 计算页数
+              let pageCount = parseInt(this.thread.replyCount / 19)
+              if (this.thread.replyCount % 19 > 0) {
+                pageCount += 1
+              }
+              if (this.currentPage > pageCount) {
+                pageCount = this.currentPage
+              }
+              // 弹出输入框
+              modal.prompt({
+                message: '共' + pageCount + '页，当前加载到' + this.currentPage + '页\n请输入数字页数，例如 6',
+                okTitle: '跳转',
+                cancelTitle: '取消'
+              }, value => {
+                if (value.result === '跳转') {
+                  this.replys.list = []
+                  this.$notice.loading.show('正在跳转')
+                  this.currentPage = parseInt(value.data)
+                  this.startPage = this.currentPage
+                  // 初始化已加载
+                  this.replys.loaded = {}
+                  // 初始化图片列表
+                  this.thread.imageList = []
+                  this.pushImage(this.thread)
+                  this.loadData().then(response => {
+                    if (response.replys.length < 19) {
+                      this.replys.isLoaded = true;
+                    }
+                    this.$notice.loading.hide()
+                  }).catch(error => {
+                    this.$notice.loading.hide()
+                  })
+                }
+              })
             }
           }
         })
       })
     },
-    loadData () {
+    loadData ({ loadPreviousPage = false } = {}) {
       return new Promise((resolve, reject) => {
         this.$fetch({
           method: 'GET',
           name: 'forum.thread',
           data: {
             id: this.thread.id,
-            page: this.currentPage
+            page: loadPreviousPage ? this.startPage : this.currentPage
           }
         }).then(async response => {
           // 解析主串内容
@@ -219,6 +271,13 @@ export default {
             this.$html.parse(response.content).then(({ list, text }) => {
               this.thread.contentList = list
               this.thread.contentText = text
+              // 计入浏览记录
+              this.$site.recordHistory({
+                type: 'visit',
+                threadId: this.thread.id,
+                threadContent: text,
+                forumName: this.thread.forumName
+              })
             })
             this.thread.userid = response.userid
             this.thread.now = response.now
@@ -231,6 +290,9 @@ export default {
             this.thread.admin = response.admin
             this.pushImage(response)
           }
+          // 用于储存加载上一页时的数据
+          let previousReply = []
+          let previousImage = []
           // 解析回复内容
           for (let reply of response.replys) {
             // 只加载未在loadedReplyIds中的
@@ -239,8 +301,26 @@ export default {
               let replyHtml = await this.$html.parse(reply.content)
               this.$set(reply, 'contentList', replyHtml.list)
               this.$set(reply, 'contentText', replyHtml.text)
-              this.replys.list.push(reply)
-              this.pushImage(reply)
+              if (loadPreviousPage) {
+                // 是否为加载上一页
+                previousReply.push(reply)
+                if (reply.img) {
+                  previousImage.push(this.$site.getImageUrl(reply.img, reply.ext, 'image'))
+                }
+              } else {
+                this.replys.list.push(reply)
+                this.pushImage(reply)
+              }
+            }
+          }
+          // 如为加载上一页 则将数据插入到头部
+          if (loadPreviousPage) {
+            this.replys.list.splice(0, 0, ...previousReply)
+            // 判断主串是否有图片
+            if (this.thread.img) {
+              this.thread.imageList.splice(1, 0, ...previousImage)
+            } else {
+              this.thread.imageList.splice(0, 0, ...previousImage)
             }
           }
           resolve(response)
@@ -250,10 +330,10 @@ export default {
       })
     },
     onLoadMore () {
-      this.currentPage++
       if (this.replys.loading) {
         return
       }
+      this.currentPage++
       this.replys.loading = true
       this.loadData().then(response => {
         if (response.replys.length !== 19) {
@@ -288,7 +368,7 @@ export default {
         }
       })
     },
-    pushImage (thread) {
+    pushImage (thread, loadPreviousPage = false) {
       if (thread.img) {
         this.thread.imageList.push(this.$site.getImageUrl(thread.img, thread.ext, 'image'))
       }
@@ -326,6 +406,21 @@ export default {
           replyId
         }
       })
+    },
+    // 加载上一页
+    loadPreviousPage () {
+      if (this.startPage <= 1 || this.replys.loading) {
+        return
+      }
+      this.startPage--
+      this.$notice.loading.show('正在加载第' + this.startPage + '页')
+
+      this.loadData({ loadPreviousPage: true }).then(response => {
+        this.$notice.loading.hide()
+      }).catch(error => {
+        this.$notice.loading.hide()
+        this.startPage++
+      })
     }
   },
   computed: {
@@ -335,6 +430,12 @@ export default {
       } else {
         return this.thread.contentText
       }
+    },
+    replyList () {
+      return [
+        this.thread,
+        ...this.replys.list
+      ]
     }
   }
 }

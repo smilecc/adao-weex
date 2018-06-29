@@ -99,6 +99,36 @@ Site.install = (Vue, options) => {
     set config (value) {
       _config = value
       Vue.prototype.$storage.setSync('config', _config)
+    },
+    recordHistory ({ type, threadId, threadContent, forumName = '', postContent = '' }) {
+      let currentSite = this.currentSite
+      let history = Vue.prototype.$storage.getSync('myHistory:' + currentSite.name)
+      // 如果没有history则初始化一个
+      if (!history) {
+        history = {
+          list: [],
+          maxId: 0
+        }
+      }
+      // 如果重新打开了最近打开的帖子 那么不记录
+      if (type === 'visit' && history.list.length > 0 && history.list[0].threadId == threadId) {
+        return
+      }
+      history.list.splice(0, 0, {
+        id: ++history.maxId,
+        type,
+        threadId,
+        threadContent: threadContent.length > 80 ? threadContent.substr(0, 80) + '...' : threadContent,
+        postContent,
+        forumName,
+        time: (new Date()).toLocaleString('zh-CN')
+      })
+      // 超出一千条则删除早期记录
+      if (history.list.length >= 1000) {
+        history.list.splice(1000, history.list.length)
+      }
+      // 存储
+      Vue.prototype.$storage.setSync('myHistory:' + currentSite.name, history)
     }
   }
 }

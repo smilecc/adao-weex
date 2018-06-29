@@ -30,9 +30,30 @@ Html.install = (Vue, options) => {
                         config.value = config.value.replace(/&amp;/g, '&')
                         config.value = config.value.replace(/&lt;/g, '<')
                         config.value = config.value.replace(/&gt;/g, '>')
+                        // 解析链接
+                        let reg = new RegExp("(https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|])", 'g')
+                        if (config.type === 'text' && reg.test(config.value)) {
+                            let list = config.value.split(reg)
+                            for (let text of list) {
+                                if (text.indexOf('https://') === 0 || text.indexOf('http://') === 0) {
+                                    $push({
+                                        type: 'link',
+                                        href: text,
+                                        value: text
+                                    })
+                                } else {
+                                    $push({
+                                        ...config,
+                                        value: text
+                                    })
+                                }
+                            }
+                            return
+                        }
+
+                        // 统计当前长度
                         contentText += config.value
                         richList[richList.length - 1].text += config.value
-                        // 统计当前长度
                         currentLength += config.value.length
                     }
                     richList[richList.length - 1].list.push(config)

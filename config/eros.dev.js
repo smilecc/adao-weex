@@ -22,6 +22,8 @@ module.exports = {
         'js/pages/personal/about/opensource.vue',
         'js/pages/personal/about/thank.vue',
         'js/pages/personal/drafts.vue',
+        // 历史
+        'js/pages/personal/history.vue',
         // 收藏夹
         'js/pages/personal/favorite/folder.vue',
         'js/pages/personal/favorite/list.vue'
