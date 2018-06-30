@@ -7,7 +7,7 @@
       :rows="rows"
       placeholder="请在此书写你的内容..."
       @input="onInput"
-      class="textarea"
+      :class="$class('textarea')"
     >
     </textarea>
     <textarea-tools class="btn-group">
@@ -351,6 +351,9 @@ export default {
   left: 0;
   right: 0;
   bottom: 80px;
+}
+.textarea-night {
+  background-color: #444;
 }
 .image-preview {
   width: 66px;

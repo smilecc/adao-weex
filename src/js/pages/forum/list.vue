@@ -1,13 +1,14 @@
 <template>
-  <scroller class="page" :class="[ borderTop ? 'page-border-top' : '' ]">
+  <scroller :class="$class('page', borderTop ? 'page-border-top' : '')">
     <div v-for="(group, gIndex) in groups" :key="gIndex" v-if="group.forums.length != 0">
       <div class="group-title">
-        <text class="group-title-text">{{ group.title }}</text>
+        <text :class="$class('group-title-text')">{{ group.title }}</text>
       </div>
       <wxc-grid-select
         :single="true"
         :list="group.forums"
         @select="onSelect"
+        :custom-styles="gridStyles"
       >
       </wxc-grid-select>
     </div>
@@ -32,6 +33,7 @@ export default {
   },
   data () {
     return {
+      listenConfig: true,
       groups: []
     }
   },
@@ -61,6 +63,7 @@ export default {
         this.$router.open({
           name: 'forum.index',
           type: 'PUSH',
+          backgroundColor: this.appConfig.night ? '#222' : '',
           params: {
             forumId: forum.id,
             forumName: forum.title
@@ -71,12 +74,32 @@ export default {
           name: 'forum.reply',
           type: 'PUSH',
           gesBack: false,
+          backgroundColor: this.appConfig.night ? '#333' : '',
           params: {
             forumId: forum.id,
             forumName: forum.title
           }
         })
       }
+    }
+  },
+  computed: {
+    gridStyles () {
+      if (this.appConfig.night) {
+        return {
+          backgroundColor: '#555',
+          color: '#ddd'
+        }
+      } else {
+        return {
+
+        }
+      }
+    }
+  },
+  eros: {
+    beforeBackAppear () {
+      this.__initConfig(this.appConfig)
     }
   }
 }
@@ -86,6 +109,10 @@ export default {
 .page {
   padding: 0 20px;
   background-color: #fff;
+}
+.page-night {
+  background-color: #333;
+  border-top-width: 0px;
 }
 .page-border-top {
   border-top-color: #dfdfdf;
@@ -103,5 +130,9 @@ export default {
 }
 .group-title-text {
   font-size: 22px;
+  color: #000;
+}
+.group-title-text-night {
+  color: #fff;
 }
 </style>

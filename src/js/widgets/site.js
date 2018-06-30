@@ -90,7 +90,8 @@ Site.install = (Vue, options) => {
           // 没有配置 使用默认配置
           this.config = {
             displayImage: true,
-            displayReply: false
+            displayReply: false,
+            night: false
           }
         }
         return _config

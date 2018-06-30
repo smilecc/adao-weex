@@ -1,13 +1,13 @@
 <template>
-  <div class="page">
-    <div class="banner" v-if="!result.show">
+  <div :class="$class('page')">
+    <div :class="$class('banner')" ref="banner" v-if="!result.show">
       <div class="timeline-title">
-        <text class="timeline-title-text">时间线</text>
+        <text :class="$class('timeline-title-text')">时间线</text>
       </div>
       <div class="banner-button-group">
-        <div class="banner-button" @click="thread.showPostPop = true">
-          <wxc-icon :icon-style="{ fontSize: '34px', color: '#000', fontWeight: '700' }" name="add"></wxc-icon>
-          <text> 发串</text>
+        <div class="banner-button" @click="showPostPop">
+          <wxc-icon :icon-style="{ fontSize: '34px', color: appConfig.night ? '#fff' : '#000', fontWeight: '700' }" name="add"></wxc-icon>
+          <text :class="$class('post-thread-text')"> 发串</text>
         </div>
       </div>
     </div>
@@ -18,8 +18,8 @@
       :show="thread.showPostPop"
       @wxcPopupOverlayClicked="thread.showPostPop = false"
     >
-      <div style="padding-top: 60px; padding-left: 25px;">
-        <text>请选择一个版块</text>
+      <div :class="$class('post-tips')">
+        <text :class="$class('post-tips-text')">请选择一个版块</text>
       </div>
       <forum-list type="post" :border-top="false" class="pop-menu"></forum-list>
     </wxc-popup>
@@ -35,15 +35,15 @@
       :offset-accuracy="300"
     >
       <cell class="thread-item" v-for="(thread, tIndex) in thread.list" :key="tIndex">
-        <div class="thread-card" @click="onThreadClick(thread.id, getForumName(thread.fid))">
+        <div :class="$class('thread-card')" @click="onThreadClick(thread.id, getForumName(thread.fid))">
           <!-- 串介绍 -->
           <div class="thread-info">
             <div class="thread-info-forum"><text style="font-size: 22px; color: #fff">{{ getForumName(thread.fid) }}</text></div>
             <div class="thread-info-content">
-              <text class="thread-info-text thread-userid">  {{ thread.userid }}</text>
-              <text class="thread-info-text thread-time">{{ thread.now }}</text>
+              <text :class="$class('thread-info-text', 'thread-userid')">  {{ thread.userid }}</text>
+              <text :class="$class('thread-info-text', 'thread-time')">{{ thread.now }}</text>
               <div class="thread-info-replycount">
-                <text class="thread-info-text" style="text-align: right">{{ thread.replyCount }}</text>
+                <text :class="$class('thread-info-text')" style="text-align: right">{{ thread.replyCount }}</text>
               </div>
             </div>
           </div>
@@ -91,10 +91,12 @@ export default {
   },
   data () {
     return {
+      listenConfig: true,
       maxScrollPosition: 0,
       result: {
         show: false,
-        type: 'noNetwork'
+        type: 'noNetwork',
+        onAppearReload: false
       },
       thread: {
         list: [],
@@ -111,6 +113,8 @@ export default {
     // 设置配置
     this.config = this.$site.config
     this.$event.on('reloadConfig', config => {
+      this.thread.list = []
+      this.result.onAppearReload = true
       this.config = config
     })
     this.initLoad()
@@ -196,6 +200,7 @@ export default {
       this.$router.open({
         name: 'forum.thread',
         type: 'PUSH',
+        backgroundColor: this.appConfig.night ? '#222' : '',
         params: {
           threadId,
           forumName
@@ -233,6 +238,20 @@ export default {
       if (this.result.type === 'noNetwork') {
         this.$router.refresh()
       }
+    },
+    showPostPop () {
+      this.$notice.loading.show('正在折越')
+      this.thread.showPostPop = true
+    }
+  },
+  eros: {
+    beforeBackAppear () {
+      this.$notice.loading.hide()
+      if (this.result.onAppearReload) {
+        this.result.onAppearReload = false
+        this.$router.refresh()
+      }
+      this.__initConfig(this.appConfig)
     }
   }
 }
@@ -240,8 +259,11 @@ export default {
 
 <style>
 .page {
-  margin-top: 165px;
-  padding-bottom: 165px;
+  padding-top: 165px;
+  /* padding-bottom: 165px; */
+}
+.page-night {
+  background-color: #222;
 }
 .banner {
   background-color: #fff;
@@ -255,9 +277,19 @@ export default {
   left: 0;
   right: 0;
 }
+.banner-night {
+  background-color: #222;
+  box-shadow: 0 0 0 #000;
+}
 .timeline-title-text {
   font-size: 55px;
   font-weight: 700;
+}
+.timeline-title-text-night {
+  color: #fff;
+}
+.post-thread-text-night {
+  color: #fff;
 }
 .banner-button-group {
   flex: 1;
@@ -269,8 +301,8 @@ export default {
 }
 
 .thread-item {
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-left: 20px;
+  padding-right: 20px;
   padding-top: 16px;
   padding-bottom: 10px;
 }
@@ -279,6 +311,10 @@ export default {
   box-shadow: 1px 0px 15px #e3e3e3;
   border-radius: 8px;
   padding: 20px;
+}
+.thread-card-night {
+  background-color: #444;
+  box-shadow: 1px 0px 15px #222;
 }
 .thread-info {
   flex-direction: row;
@@ -297,8 +333,11 @@ export default {
   font-size: 22px;
   color: #666;
 }
+.thread-info-text-night {
+  color: #c1c1c1;
+}
 .thread-userid {
-  width: 130px;
+  width: 140px;
 }
 .thread-info-replycount {
   flex: 1;
@@ -338,5 +377,19 @@ export default {
   right: 25px;
 }
 .pop-menu {
+}
+.post-tips {
+  background-color: #fff;
+  padding-top: 60px;
+  padding-left: 25px;
+}
+.post-tips-night {
+  background-color: #333;
+}
+.post-tips-text {
+  color: #000;
+}
+.post-tips-text-night {
+  color: #fff;
 }
 </style>

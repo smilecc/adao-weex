@@ -15,15 +15,16 @@
             v-else
             :value="element.value"
             :style="element.style ? element.style : {}"
+            :class="!appConfig.night && element.style ? '' : $class('text')"
           >
           </bmspan>
         </div>
       </bmrichtext>
-      <div v-if="isQuote(line)" class="quote">
-        <bmrichtext class="quote-text" v-if="getQuote(line).id > 0">
+      <div v-if="isQuote(line)" :class="$class('quote')">
+        <bmrichtext :class="$class('quote-text')" v-if="getQuote(line).id > 0">
           <bmspan :value="getQuote(line).content"></bmspan>
         </bmrichtext>
-        <bmrichtext class="quote-text" v-else>
+        <bmrichtext :class="$class('quote-text')" v-else>
           <bmspan value="未找到该串"></bmspan>
         </bmrichtext>
       </div>
@@ -43,6 +44,8 @@ export default {
   },
   data () {
     return {
+      listenConfig: true,
+      isComponent: true,
       quote: {}
     }
   },
@@ -99,7 +102,7 @@ export default {
 
 <style scoped>
 .link {
-  color: blue;
+  color: #6666FF;
 }
 .quote {
   background-color: #eee;
@@ -108,9 +111,21 @@ export default {
   margin-top: 2px;
   margin-bottom: 5px;
 }
+.quote-night {
+  background-color: #444;
+}
 .quote-text {
   font-size: 22px;
   color: #666;
+}
+.quote-text-night {
+  color: #bbb;
+}
+.text {
+
+}
+.text-night {
+  color: #bbb;
 }
 </style>
 

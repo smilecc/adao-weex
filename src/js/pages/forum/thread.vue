@@ -1,17 +1,17 @@
 <template>
-  <div>
-    <div class="border-shadow"></div>
+  <div :class="$class('page')">
+    <div :class="$class('border-shadow')"></div>
     <scroller
       @loadmore="onLoadMore"
       :loadmoreoffset="1500"
     >
-      <div ref="main" class="thread-main" v-if="thread.contentList.length > 0">
+      <div ref="main" :class="$class('thread-main')" v-if="thread.contentList.length > 0">
         <!-- 板块信息 -->
         <div class="thread-user">
           <!-- 用户信息 -->
           <div class="thread-user-name">
             <bmrichtext style="color: #888; flex: 1">
-              <bmspan style="color: #333" :value="thread.name"></bmspan>
+              <bmspan :class="$class('thread-user-username')" :value="thread.name"></bmspan>
               <bmspan :style="{ color: thread.admin == 1 ? 'red' : '#888' }" :value="` ${thread.userid}`"></bmspan>
               <bmspan v-if="thread.sage == 1" style="color: red" :value="` SAGE`"></bmspan>
             </bmrichtext>
@@ -27,14 +27,14 @@
         </div>
         <!-- 标题 -->
         <div class="thread-title">
-          <text style="font-weight: 500; font-size: 33px">{{ thread.title }}</text>
+          <text :class="$class('thread-title-text')">{{ thread.title }}</text>
         </div>
         <!-- 串的内容 -->
         <w-html :list="thread.contentList"></w-html>
         <!-- 图片 -->
         <image
           v-if="config.displayImage && thread.img"
-          class="thread-image"
+          :class="$class('thread-image')"
           resize="contain"
           :src="$site.getImageUrl(thread.img, thread.ext)"
           @click="showImage(thread.img, thread.ext)"
@@ -47,15 +47,15 @@
           <text class="finish-text">当前第{{ startPage }}页 点此加载上一页</text>
         </div>
         <text class="reply-title">回复</text>
-        <div v-for="(reply, rIndex) in replys.list" :key="rIndex" @click="onOperationReply(reply)" class="reply-card">
+        <div v-for="(reply, rIndex) in replys.list" :key="rIndex" @click="onOperationReply(reply)" :class="$class('reply-card')">
           <div class="reply-user">
             <!-- 用户信息 -->
             <div class="thread-user-name">
               <bmrichtext style="color: #888; flex: 1">
                 <bmspan v-if="reply.admin == 1" style="color: red" :value="reply.userid"></bmspan>
-                <bmspan v-else-if="reply.userid == thread.userid" style="color: #000" :value="reply.userid"></bmspan>
-                <bmspan v-else style="color: #888" :value="reply.userid"></bmspan>
-                <bmspan v-if="reply.userid == thread.userid" class="reply-tag-po" value=" PO主"></bmspan>
+                <bmspan v-else-if="reply.userid == thread.userid" :class="$class('reply-userid-po')" :value="reply.userid"></bmspan>
+                <bmspan v-else :class="$class('reply-userid')" :value="reply.userid"></bmspan>
+                <bmspan v-if="reply.userid == thread.userid" :class="$class('reply-tag-po')" value=" PO主"></bmspan>
                 <bmspan v-if="reply.admin == 1" class="reply-tag-admin" value=" 红名"></bmspan>
               </bmrichtext>
             </div>
@@ -68,7 +68,7 @@
           <w-html ref="reply" :list="reply.contentList" :replys="replyList"></w-html>
           <image
             v-if="config.displayImage && reply.img"
-            class="thread-image"
+            :class="$class('thread-image')"
             resize="contain"
             :src="$site.getImageUrl(reply.img, reply.ext)"
             @click="showImage(reply.img, reply.ext)"
@@ -401,6 +401,7 @@ export default {
         name: 'forum.reply',
         type: 'PUSH',
         gesBack: false,
+        backgroundColor: this.appConfig.night ? '#333' : '',
         params: {
           threadId: this.thread.id,
           replyId
@@ -442,6 +443,9 @@ export default {
 </script>
 
 <style>
+.page-night {
+  background-color: #333;
+}
 .border-shadow {
   box-shadow: 1px 0px 15px #ccc;
   position: fixed;
@@ -451,6 +455,9 @@ export default {
   height: 20px;
   background-color: #fff;
 }
+.border-shadow-night {
+  box-shadow: 0px 0px 0 #222;
+}
 .thread-main {
   border-top-color: #f0f0f0;
   border-top-style: solid;
@@ -458,12 +465,30 @@ export default {
   background-color: #fff;
   padding: 30px 40px;
 }
+.thread-main-night {
+  background-color: #272727;
+  border-top-color: #222;
+}
 .thread-user {
   margin-bottom: 30px;
 }
 .thread-user-name {
   flex-direction: row;
   justify-content: space-between;
+}
+.thread-user-username {
+  color: #333;
+}
+.thread-user-username-night {
+  color: #ddd;
+}
+.thread-title-text {
+  color: #000;
+  font-weight: 500;
+  font-size: 33px;
+}
+.thread-title-text-night {
+  color: #fff;
 }
 .forum-name {
   background-color: #e8e8e8;
@@ -493,9 +518,22 @@ export default {
   border-bottom-width: 1px;
   border-bottom-color: #f2f2f2;
 }
+.reply-card-night {
+  background-color: #272727;
+  border-bottom-color: #444;
+}
 .reply-tag-po {
   color: #333;
   font-size: 16px;
+}
+.reply-tag-po-night {
+  color: #ddd;
+}
+.reply-userid-po {
+  color: #000;
+}
+.reply-userid-po-night {
+  color: #fff;
 }
 .reply-tag-admin {
   font-size: 16px;
@@ -510,6 +548,9 @@ export default {
   border-style: solid;
   border-width: 1px;
   border-color: #dfdfdf;
+}
+.thread-image-night {
+  border-color: #555;
 }
 
 .finish {

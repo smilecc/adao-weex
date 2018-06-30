@@ -5,7 +5,7 @@
       <text class="version">v1.0.beta</text>
     </div>
     <div class="group">
-      <wxc-cell title="项目地址" :has-arrow="true" @wxcCellClicked="openGithub"></wxc-cell>
+      <wxc-cell title="项目地址" v-if="false" :has-arrow="true" @wxcCellClicked="openGithub"></wxc-cell>
       <wxc-cell title="开源组件" :has-arrow="true" @wxcCellClicked="openOpenSource"></wxc-cell>
       <wxc-cell title="关于作者" :has-arrow="true" @wxcCellClicked="openBlog"></wxc-cell>
       <wxc-cell title="致谢" :has-arrow="true" @wxcCellClicked="openThank"></wxc-cell>

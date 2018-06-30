@@ -4,6 +4,7 @@ import routes from './routes'
 import sites from './sites'
 import './push'
 import '../widgets/html'
+import '../widgets/mixins'
 import Site from '../widgets/site'
 
 Vue.use(Site, sites)

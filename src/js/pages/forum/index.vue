@@ -1,6 +1,6 @@
 <template>
-  <div class="wrapper">
-    <div class="border-shadow"></div>
+  <div :class="$class('wrapper')">
+    <div :class="$class('border-shadow')"></div>
     <div class="forum" v-if="forums.assignId === 0">
       <scroller :show-scrollbar="false" scroll-direction="horizontal" class="forum-swich">
         <div
@@ -31,7 +31,7 @@
     >
       <cell style="height: 10px"></cell>
       <cell v-for="(item, index) in threads.list" :key="index" class="thread-item" >
-        <div class="thread-card" @click="onThreadClick(item.id)">
+        <div :class="$class('thread-card')" @click="onThreadClick(item.id)">
           <div class="thread-info">
             <bmrichtext style="color: #888">
               <!-- <bmspan :value="`No.${item.id}`"></bmspan> -->
@@ -50,7 +50,7 @@
           <!-- 图片 -->
           <image
             v-if="config.displayImage && item.img"
-            class="thread-image"
+            :class="$class('thread-image')"
             resize="contain"
             :src="$site.getImageUrl(item.img, item.ext)"
             @click="showImage(item.img, item.ext)"
@@ -244,6 +244,7 @@ export default {
       this.$router.open({
         name: 'forum.thread',
         type: 'PUSH',
+        backgroundColor: this.appConfig.night ? '#222' : '',
         params: {
           threadId,
           forumName: this.forums.list[this.forums.selected].name
@@ -289,6 +290,11 @@ export default {
         return this.forums.list[this.forums.selected].id
       }
     }
+  },
+  eros: {
+    beforeBackAppear () {
+      this.$notice.loading.hide()
+    }
   }
 }
 </script>
@@ -303,8 +309,14 @@ export default {
   height: 20px;
   background-color: #fff;
 }
+.border-shadow-night {
+  box-shadow: 1px 0px 15px #333;
+}
 .wrapper {
   background-color: #f7f8fa;
+}
+.wrapper-night {
+  background-color: #222;
 }
 .forum {
   border-bottom-color: #f0f0f0;
@@ -351,6 +363,10 @@ export default {
   border-radius: 8px;
   padding: 24px;
 }
+.thread-card-night {
+  background-color: #444;
+  box-shadow: 1px 0px 15px #222;
+}
 .thread-info {
   margin-bottom: 10px;
 }
@@ -368,6 +384,9 @@ export default {
   border-style: solid;
   border-width: 1px;
   border-color: #f2f2f2;
+}
+.thread-image-night {
+  border-color: #555;
 }
 .thread-time {
   flex: 1;
